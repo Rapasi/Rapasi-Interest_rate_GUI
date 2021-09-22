@@ -100,12 +100,14 @@ stock_names=get_name(osakkeet)
 my_stocks=open_stock(osakkeet)
 
 def kuvaaja(Osake):
-    title=[t for t in stock_names if t == Osake]
+    title_list=[]
+    title_list.append(Osake)
+    title=get_name(title_list)
     plt.figure(figsize=(12,7))
     plt.plot(my_stocks[Osake])
     plt.xlabel('Aika',fontsize=14)
     plt.xticks(rotation=20)
-    plt.title(f'{title}',fontsize=18)
+    plt.title(f'{title[0]}',fontsize=18)
     plt.ylabel('Hinta',fontsize=14)
     plt.savefig('Kuvaaja.png')
     # plt.figure(figsize=(12,8))
