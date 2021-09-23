@@ -15,17 +15,9 @@ root.geometry('1200x850')
 Height=800
 Width=1000
 
-# Selected paths work only on my computers
-
-path_lnx='~/Rami/Interest_rates/Interest_rates.xlsx'
-path_windows=r'C:\Users\ramie\Downloads\korot.xlsx'
-
-#lnx_stocks='~/Rami/Interest_rates\Kuvaaja_{0}.png'.format(i)
-#save_fig_windows=r'C:\Users\ramie\Projects\Kuvaaja
-
-# Reading csv as pandas dataframe and modifying it a litle. 
 
 
+# Reading xlsx file and modifying it a little. Please check the path so file can be read. 
 
 data=pd.read_excel('Interest_rates.xlsx',header=4,index_col='Period')
 mod=data.iloc[:-2]
@@ -36,7 +28,7 @@ red=mod.iloc[::-1]
 column_titles=['Eonia','Euribor 1kk','Euribor 3kk','Euribor 6kk','Euribor 12kk']
 red.columns=column_titles
 
-# Defining a function to graph plots.
+# Function that helps to select right columns of data.
 new=''
 def format(entry):
     if entry=='eonia' or entry=='Eonia':
@@ -54,6 +46,8 @@ def format(entry):
     else:
         print(f'{entry} was not a valid interest rate')
     return(new)
+
+# Defining a function to graph interest rate graphs.
 
 def graph(final):
     test=format(final)   
@@ -74,9 +68,7 @@ def graph(final):
     panel.image=photo
     panel.grid(row=15,column=0,columnspan=10)
 
-
-# List of stocks to plot
-
+# A function that converts names to their proper common names. 
 def get_name(osake_list):
     company_names=[]
     for name in osake_list:
@@ -85,11 +77,12 @@ def get_name(osake_list):
         company_names.append(company_name)
     return(company_names)
 
-colours=['r','g','b','k','c','y','m','teal','sienna']
+
+# List of stocks to plot
 osakkeet=['ORTHEX.HE','WRT1V.HE','TYRES.HE','UPM.HE','METSB.HE','SHOT.ST','ZIGN.ST','OUT1V.HE','FIA1S.HE']
 
 
-# Functions to download stock prices and plot graphs
+# Functions to download stock.
 
 def open_stock(Osake):
     osake=pdr.DataReader(Osake,'yahoo',start,end)
@@ -99,15 +92,19 @@ def open_stock(Osake):
 stock_names=get_name(osakkeet)
 my_stocks=open_stock(osakkeet)
 
+# Creating a dictionary to swap names again for plotting. 
+dictionary=dict(zip(osakkeet,stock_names))
+print(dictionary)
+
+
+# Plotting stock price graphs.
+
 def kuvaaja(Osake):
-    title_list=[]
-    title_list.append(Osake)
-    title=get_name(title_list)
     plt.figure(figsize=(12,7))
     plt.plot(my_stocks[Osake])
     plt.xlabel('Aika',fontsize=14)
     plt.xticks(rotation=20)
-    plt.title(f'{title[0]}',fontsize=18)
+    plt.title(f'{convert(Osake)}',fontsize=18)
     plt.ylabel('Hinta',fontsize=14)
     plt.savefig('Kuvaaja.png')
     # plt.figure(figsize=(12,8))
@@ -121,19 +118,27 @@ def kuvaaja(Osake):
     panel.image=photo
     panel.grid(row=15,column=0,columnspan=10)
 
-def select_stock():
-    selected_stock=drop_stocks.get()
-    return(selected_stock)
+# functions to swap names and select names from dropdown menus for plotting.
 
+def select_stock(*args): 
+    for i,j in dictionary.items():
+        if j==drop_stocks.get():
+            return(i)
+
+def convert(name):
+    for i,j in dictionary.items():
+            if j==drop_stocks.get():
+                return(j)
 
 def select_rate():
     selected_rate=variable.get()
     return(selected_rate)
 
+# Tkinter stuff for GUI.
 
 drop_stocks=tk.StringVar(root)
 drop_stocks.set('Stocks')
-w=tk.OptionMenu(root,drop_stocks,*osakkeet)
+w=tk.OptionMenu(root,drop_stocks,*dictionary.values())
 w.grid(row=0,column=0)
 
 stock_button=tk.Button(root, text='Select stocks',command=lambda: kuvaaja(select_stock()))
